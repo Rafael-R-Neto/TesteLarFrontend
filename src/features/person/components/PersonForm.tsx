@@ -4,6 +4,8 @@ import { useToastStore } from '../../../stores/toastStore';
 import { useLoadingStore } from '../../../stores/loadingStore';
 import { IMaskInput } from 'react-imask';
 import { getPhoneTypes } from '../services/phoneService';
+import { FaArrowAltCircleRight, FaArrowCircleLeft, FaPhoneAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 interface PhoneInput {
   id?: number;
@@ -27,6 +29,7 @@ export const PersonForm = ({ onSubmit, initialData }: Props) => {
   const [phones, setPhones] = useState<PhoneInput[]>([{ number: '', typeId: '' }]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [phoneTypes, setPhoneTypes] = useState<PhoneType[]>([]);
+  const navigate = useNavigate();
 
   const { showToast } = useToastStore();
   const { show, hide } = useLoadingStore.getState();
@@ -123,21 +126,27 @@ export const PersonForm = ({ onSubmit, initialData }: Props) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h5 className="mb-4">Dados da Pessoa</h5>
-
-      <div className="row mb-3">
-        <div className="col-md-6">
+      <div className="d-flex align-items-center mb-5">
+        <a onClick={() => navigate("/pessoas")}>
+          <FaArrowCircleLeft size={30} color='green' />
+        </a>
+        <h6 className="display-6">{initialData ? `Editar` : `Cadastrar`} Pessoa</h6>
+      </div>
+      <div className="row mb-3 mt-5">
+        <div className="col-md-12">
           <label className="form-label">Nome</label>
-          <input
-            name="name"
-            className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-            value={form.name}
-            onChange={handleChange}
-            onBlur={() => validateField('name', form.name)}
-          />
-          {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+          <div className="">
+            <input
+              name="name"
+              className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+              value={form.name}
+              onChange={handleChange}
+              onBlur={() => validateField('name', form.name)}
+            />
+            {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+          </div>
         </div>
-        <div className="col-md-3">
+        <div className="col-md-6">
           <label className="form-label">CPF</label>
           <IMaskInput
             mask="000.000.000-00"
@@ -149,7 +158,7 @@ export const PersonForm = ({ onSubmit, initialData }: Props) => {
           />
           {errors.cpf && <div className="invalid-feedback">{errors.cpf}</div>}
         </div>
-        <div className="col-md-3">
+        <div className="col-md-6">
           <label className="form-label">Data de Nascimento</label>
           <input
             name="birthDate"
@@ -163,53 +172,61 @@ export const PersonForm = ({ onSubmit, initialData }: Props) => {
         </div>
       </div>
 
-      <div className="mb-3">
-        <button type="button" className="btn btn-outline-secondary" onClick={addPhone}>
-          + Adicionar Telefone
-        </button>
-      </div>
-
-      <h5 className="mt-4">Telefones</h5>
-      {phones?.map((phone, index) => (
-        <div className="row mb-3" key={index}>
-          <div className="col-md-6">
-            <label className="form-label">Número</label>
-            <IMaskInput
-              mask={phone.typeId === 'FIXO' ? '(00) 0000-0000' : '(00) 00000-0000'}
-              className={`form-control ${errors[`phone_${index}`] ? 'is-invalid' : ''}`}
-              value={phone.number}
-              onAccept={(value) => handlePhoneChange(index, 'number', value)}
-              onBlur={() => validatePhoneField(index)}
-            />
-            {errors[`phone_${index}`] && <div className="invalid-feedback">{errors[`phone_${index}`]}</div>}
-          </div>
-          <div className="col-md-4">
-            <label className="form-label">Tipo</label>
-            <select
-              className="form-select"
-              value={phone.typeId}
-              onChange={(e) => handlePhoneChange(index, 'typeId', e.target.value)}
-            >
-              <option value="">Selecione</option>
-              {phoneTypes?.map((pt) => (
-                <option key={pt.id} value={pt.id}>{pt.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="col-md-2 d-flex align-items-end">
-            <button
-              type="button"
-              className="btn btn-outline-danger w-100"
-              onClick={() => removePhone(index)}
-              disabled={phones.length === 1}
-            >
-              Remover
-            </button>
-          </div>
+      <div className="row mt-5">
+        <div className="d-flex justify-content-end align-content-center">
+          <button type="button" className="btn btn-outline-secondary" onClick={addPhone}>
+            <label>
+              Adicionar Telefone
+            </label>
+            <FaPhoneAlt />
+          </button>
         </div>
-      ))}
 
-      <button type="submit" className="btn btn-primary">Salvar</button>
+        <h5 className="mt-4">Telefones</h5>
+        {phones?.map((phone, index) => (
+          <div className="row mb-3" key={index}>
+            <div className="col-md-6">
+              <label className="form-label">Número</label>
+              <IMaskInput
+                mask={phone.typeId === 'FIXO' ? '(00) 0000-0000' : '(00) 00000-0000'}
+                className={`form-control ${errors[`phone_${index}`] ? 'is-invalid' : ''}`}
+                value={phone.number}
+                onAccept={(value) => handlePhoneChange(index, 'number', value)}
+                onBlur={() => validatePhoneField(index)}
+              />
+              {errors[`phone_${index}`] && <div className="invalid-feedback">{errors[`phone_${index}`]}</div>}
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Tipo</label>
+              <select
+                className="form-select"
+                value={phone.typeId}
+                onChange={(e) => handlePhoneChange(index, 'typeId', e.target.value)}
+              >
+                <option value="">Selecione</option>
+                {phoneTypes?.map((pt) => (
+                  <option key={pt.id} value={pt.id}>{pt.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-2 d-flex align-items-end">
+              <button
+                type="button"
+                className="btn btn-outline-danger w-100"
+                onClick={() => removePhone(index)}
+                disabled={phones.length === 1}
+              >
+                Remover
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="row">
+        <div className="col-md-4">
+          <button type="submit" className="btn btn-primary col-md-5">Salvar</button>
+        </div>
+      </div>
     </form>
   );
 };

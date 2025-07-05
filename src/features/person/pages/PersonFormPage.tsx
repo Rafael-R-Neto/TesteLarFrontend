@@ -63,7 +63,7 @@ export const PersonFormPage = () => {
   };
 
   return (
-    <div className="card shadow-sm">
+    <div className="card shadow-sm p-5">
       <PersonForm onSubmit={handleSubmit} initialData={initialData} />
     </div>
   );
